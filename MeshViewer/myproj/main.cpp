@@ -388,20 +388,18 @@ void display()
 	glLoadIdentity();
 	gluLookAt(camera_eye.X, camera_eye.Y, camera_eye.Z, camera_eye.X + camera_forward.dX, camera_eye.Y + camera_forward.dY, camera_eye.Z + camera_forward.dZ, camera_up.dX, camera_up.dY, camera_up.dZ);
 
-	if (drawmesh || drawsilhouette){
+	if (drawmesh || drawsilhouette) {
 		glLineWidth(1.0);
 		glEnable(GL_POLYGON_OFFSET_FILL); glPolygonOffset(2.0f, 2.0f); //for z-bleeding, z-fighting.
 		if (drawsilhouette && !drawmesh) glUseProgram(0);
 		glBegin(GL_TRIANGLES);
 		if (drawmesh) glColor3f(0.4f, 0.8f, 0.4f);
 		else glColor3f(1.0, 1.0, 1.0);
-		for (vector<myFace *>::iterator it = m->faces.begin(); it != m->faces.end(); it++)
-		{
+		for (vector<myFace *>::iterator it = m->faces.begin(); it != m->faces.end(); it++) {
 			myHalfedge *estart = (*it)->adjacent_halfedge;
 			myHalfedge *e = estart->next;
 			myVertex *vstart = estart->source;
-			while (e->next != estart)
-			{
+			while (e->next != estart) {
 				myVertex *v;
 				myVector3D r;
 				v = vstart;
@@ -430,8 +428,7 @@ void display()
 		glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 
-	if (drawmeshvertices)
-	{
+	if (drawmeshvertices) {
 		glUseProgram(0);
 		glPointSize(2.0);
 		glBegin(GL_POINTS);
@@ -442,13 +439,11 @@ void display()
 		glUseProgram(shaderprogram);
 	}
 
-	if (drawwireframe)
-	{
+	if (drawwireframe) {
 		glLineWidth(2.0);
 		glBegin(GL_LINES);
 		glColor3f(0.0, 0.0, 0.0);
-		for (vector<myHalfedge *>::iterator it = m->halfedges.begin(); it != m->halfedges.end(); it++)
-		{
+		for (vector<myHalfedge *>::iterator it = m->halfedges.begin(); it != m->halfedges.end(); it++) {
 			myHalfedge *e = (*it);
 			myVertex *v1 = (*it)->source;
 			myVertex *v2 = (*it)->next->source;
@@ -461,19 +456,16 @@ void display()
 		glEnd();
 	}
 
-	if (drawsilhouette)
-	{
+	if (drawsilhouette) {
+
 	}
 
-
-	if (drawnormals)
-	{
+	if (drawnormals) {
 		glUseProgram(0);
 		glLineWidth(1.0);
 		glBegin(GL_LINES);
 		glColor3f(0.2f, 0.2f, 0.2f);
-		for (vector<myVertex *>::iterator it = m->vertices.begin(); it != m->vertices.end(); it++)
-		{
+		for (vector<myVertex *>::iterator it = m->vertices.begin(); it != m->vertices.end(); it++) {
 			myVertex *v = *it;
 			myVector3D *normal = v->normal;
 
@@ -484,9 +476,7 @@ void display()
 		glUseProgram(shaderprogram);
 	}
 
-
-	if (pickedpoint != NULL)
-	{
+	if (pickedpoint != NULL) {
 		glUseProgram(0);
 		glPointSize(8.0);
 		glBegin(GL_POINTS);
@@ -496,8 +486,7 @@ void display()
 		glUseProgram(shaderprogram);
 	}
 
-	if (closest_edge != NULL)
-	{
+	if (closest_edge != NULL) {
 		glUseProgram(0);
 		glLineWidth(4.0);
 		glBegin(GL_LINES);
@@ -508,8 +497,7 @@ void display()
 		glUseProgram(shaderprogram);
 	}
 
-	if (closest_vertex != NULL)
-	{
+	if (closest_vertex != NULL) {
 		glUseProgram(0);
 		glPointSize(8.0);
 		glBegin(GL_POINTS);
@@ -519,8 +507,7 @@ void display()
 		glUseProgram(shaderprogram);
 	}
 
-	if (closest_face != NULL)
-	{
+	if (closest_face != NULL) {
 		glUseProgram(0);
 		glBegin(GL_TRIANGLES);
 		glColor3f(0.1, 0.1, 0.9);
@@ -547,8 +534,7 @@ void display()
 }
 
 //This function is called from the main to initalize everything.
-void init()
-{
+void init() {
 	vertexshader = initshaders(GL_VERTEX_SHADER, "shaders/light.vert.glsl");
 	fragmentshader = initshaders(GL_FRAGMENT_SHADER, "shaders/light.frag.glsl");
 	shaderprogram = initprogram(vertexshader, fragmentshader);

@@ -23,9 +23,9 @@ void myFace::computeNormal() {
 
 	// set the normal to the cross product of v1 and v2
 	myVector3D vResult = v1.crossproduct(v2);
-	vResult.normalize();
 
 	this->normal = new myVector3D(vResult.dX, vResult.dY, vResult.dZ);
+	this->normal->normalize();
 }
 
 myFace::~myFace(void) {

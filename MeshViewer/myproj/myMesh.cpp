@@ -88,16 +88,15 @@ void myMesh::readFile(std::string filename) {
 			int vertices_visited[3];
 			while (myline >> tmp) // loops 3 times (apple.obj)
 			{
-				index = std::stoi(tmp) - 1;
+				index = std::stoi(tmp) - 1; // get index from file
+				
 				vertices_visited[i++] = index;
 
 				vertices[index]->originof = halfedges[currentHalfEdgeIndex];
 
 				halfedges[currentHalfEdgeIndex]->adjacent_face = faces[lastFaceIndex];
-
 				halfedges[currentHalfEdgeIndex]->next = halfedges[((currentHalfEdgeIndex + 1) % 3) + firstHalfEdgeIndex];
 				halfedges[currentHalfEdgeIndex]->prev = halfedges[(currentHalfEdgeIndex - 1 + 3) % 3 + firstHalfEdgeIndex];
-
 				halfedges[currentHalfEdgeIndex]->source = vertices[index];
 				currentHalfEdgeIndex++;
 			}
@@ -114,6 +113,9 @@ void myMesh::readFile(std::string filename) {
 	//normalize();
 }
 
+/*
+ * Computes the normals for each face, and for each vertex
+ */
 void myMesh::computeNormals() {
 	for (vector<myFace *>::iterator it = faces.begin(); it != faces.end(); it++)
 		(*it)->computeNormal();

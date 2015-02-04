@@ -1,8 +1,7 @@
 #include "StdAfx.h"
 #include "myHalfedge.h"
 
-myHalfedge::myHalfedge(void)
-{
+myHalfedge::myHalfedge(void) {
 	source = NULL;
 	adjacent_face = NULL;
 	next = NULL;
@@ -10,13 +9,10 @@ myHalfedge::myHalfedge(void)
 	twin = NULL;
 }
 
-myHalfedge::~myHalfedge(void)
-{
-	delete source;
-	delete adjacent_face;
-	delete next;
-	delete prev;
-	delete twin;
+myHalfedge::~myHalfedge(void) {
+	delete source; delete adjacent_face;
+	delete next; delete prev; delete twin;
+
 	source = NULL; adjacent_face = NULL; 
 	next = NULL; prev = NULL; twin = NULL;
 }

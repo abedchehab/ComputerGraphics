@@ -559,35 +559,8 @@ void init()
 	closest_face = NULL;
 
 	m = new myMesh();
-
-	//Fixing the halfedge data structure to contain a triangle.
-	//Should be replaced with: m->readFile("apple.obj") to read a Mesh from an obj file.
-	/*{
-		for (int i = 0; i < 3; i++)
-			m->vertices.push_back(new myVertex());
-		for (int i = 0; i < 3; i++)
-			m->halfedges.push_back(new myHalfedge());
-		m->faces.push_back(new myFace());
-
-		m->faces[0]->adjacent_halfedge = m->halfedges[0];
-
-		m->vertices[0]->point = new myPoint3D(0, 0, 0);
-		m->vertices[1]->point = new myPoint3D(1, 0, 0);
-		m->vertices[2]->point = new myPoint3D(0, 1, 0);
-
-		for (int i = 0; i < 3; i++)
-			m->vertices[i]->originof = m->halfedges[i];
-
-		for (int i = 0; i < 3; i++) {
-			m->halfedges[i]->adjacent_face = m->faces[0];
-			m->halfedges[i]->next = m->halfedges[(i + 1) % 3];
-			m->halfedges[i]->prev = m->halfedges[(i - 1 + 3) % 3];
-			m->halfedges[i]->source = m->vertices[i];
-			m->halfedges[i]->twin = NULL;
-		}
-	}*/
 	m->readFile("apple.obj");
-	//m->computeNormals();
+	m->computeNormals();
 }
 
 

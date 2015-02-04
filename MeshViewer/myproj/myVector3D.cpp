@@ -3,7 +3,7 @@
 #include "mypoint3d.h"
 #include <iostream>
 
-myVector3D::myVector3D() {}
+myVector3D::myVector3D() :myVector3D(0.0, 0.0, 0.0) { }
 
 myVector3D::myVector3D(double dx, double dy, double dz) {
 	dX = dx;

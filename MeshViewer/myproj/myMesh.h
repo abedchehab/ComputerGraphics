@@ -19,6 +19,7 @@ public:
 	void readFile(std::string filename);
 	void computeNormals();
 	void normalize();
+	void triangulate();
 
 	myHalfedge* getTwin(map<pair<int, int>, myHalfedge *> &table, int &a, int &b, myHalfedge *value);
 

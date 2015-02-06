@@ -14,13 +14,72 @@ myMesh::myMesh(void) {
 }
 
 myMesh::~myMesh(void) {
-
+	
 }
 
 void myMesh::checkMesh() {
 
 }
 
+/*
+ * 1- Check if there exists more than 3 edges in a face
+ */
+void myMesh::triangulate() {
+	int facesSize = faces.size();
+	for (int i = 0; i < facesSize; i++) {
+		int count = 1; // current half edge count
+		myHalfedge *hTemp = faces[i]->adjacent_halfedge;
+		myHalfedge *iterator = faces[i]->adjacent_halfedge->next;
+		while (count < 3) {
+			iterator = iterator->next;
+			count++;
+		}
+
+		// count is 3, and we did not reach back to the first halfedge
+		if (iterator != hTemp) {
+			// start by creating the twin.
+			halfedges.push_back(new myHalfedge()); 
+			int lastIndex = halfedges.size() - 1;
+			halfedges[lastIndex]->prev = hTemp->prev->prev;
+			halfedges[lastIndex]->next = iterator;
+			halfedges[lastIndex]->source = hTemp->source;
+			halfedges[lastIndex]->adjacent_face = iterator->adjacent_face;
+
+			// create a new face
+			faces.push_back(new myFace());
+			int lastFaceIndex = faces.size() - 1;
+
+			// create the new halfedge
+			halfedges.push_back(new myHalfedge());
+			lastIndex++;
+			faces[lastFaceIndex]->adjacent_halfedge = halfedges[lastIndex];
+
+			halfedges[lastIndex]->prev = hTemp;
+			halfedges[lastIndex]->next = hTemp->prev;
+			halfedges[lastIndex]->source = hTemp->source;
+			halfedges[lastIndex]->adjacent_face = faces[lastFaceIndex];
+			halfedges[lastIndex]->twin = halfedges[lastIndex - 1];
+
+			// link both half edges
+			halfedges[lastIndex - 1]->twin = halfedges[lastIndex];
+			
+			// set the faces for the other 2 halfedges
+			halfedges[lastIndex]->next->adjacent_face = faces[lastFaceIndex];
+			halfedges[lastIndex]->prev->adjacent_face = faces[lastFaceIndex];
+
+
+			faces[lastFaceIndex]->computeNormal();
+		}
+		// Else, already triangulated.
+	}
+}
+
+/*
+ * Checks if a twin of [a, b] exists or not
+ * If [a, b] exists, return it
+ * Else, if the twin [b, a] doesn't exist, add the current halfedge to the map
+ * Else, return NULL
+ */
 myHalfedge* myMesh::getTwin(map<pair<int, int>, myHalfedge *> &table, int &a, int &b, myHalfedge *value) {
 	pair<int, int> points = make_pair(a, b);
 	map<pair<int, int>, myHalfedge *>::iterator it = table.find(points);
@@ -72,39 +131,49 @@ void myMesh::readFile(std::string filename) {
 		}
 		else if (t == "f") // Face
 		{
-			faces.push_back(new myFace());
+			// store the vertices of the face in the vector, to count them.
+			vector<int> vertices_visited;
+			while (myline >> tmp) 
+			{
+				index = std::stoi(tmp) - 1; // get index from file
+				vertices_visited.push_back(index);
+			}
+			int verticesInFaceCount = vertices_visited.size();
 
-			for (int i = 0; i < 3; i++) {
+			faces.push_back(new myFace()); // Create the face
+
+			// Create the half Edges
+			for (int i = 0; i < verticesInFaceCount; i++) {
 				halfedges.push_back(new myHalfedge());
 			}
 
 			int lastFaceIndex = faces.size() - 1;
-			int firstHalfEdgeIndex = halfedges.size() - 3;
+			int firstHalfEdgeIndex = halfedges.size() - verticesInFaceCount;
 			int currentHalfEdgeIndex = firstHalfEdgeIndex;
 			int nextIndex;
 			faces[lastFaceIndex]->adjacent_halfedge = halfedges[halfedges.size() - 1];
 
-			int i = 0;
-			int vertices_visited[3];
-			while (myline >> tmp) // loops 3 times (apple.obj)
-			{
-				index = std::stoi(tmp) - 1; // get index from file
-				
-				vertices_visited[i++] = index;
-
+			// Link the half Edges
+			for (int i = 0; i < verticesInFaceCount; i++) {
+				index = vertices_visited[i];
 				vertices[index]->originof = halfedges[currentHalfEdgeIndex];
 
 				halfedges[currentHalfEdgeIndex]->adjacent_face = faces[lastFaceIndex];
-				halfedges[currentHalfEdgeIndex]->next = halfedges[((currentHalfEdgeIndex + 1) % 3) + firstHalfEdgeIndex];
-				halfedges[currentHalfEdgeIndex]->prev = halfedges[(currentHalfEdgeIndex - 1 + 3) % 3 + firstHalfEdgeIndex];
+				
+				halfedges[currentHalfEdgeIndex]->next = 
+					halfedges[((currentHalfEdgeIndex + 1) % verticesInFaceCount) + firstHalfEdgeIndex];
+				halfedges[currentHalfEdgeIndex]->prev = 
+					halfedges[(currentHalfEdgeIndex - 1 + verticesInFaceCount) % verticesInFaceCount + firstHalfEdgeIndex];
+
 				halfedges[currentHalfEdgeIndex]->source = vertices[index];
 				currentHalfEdgeIndex++;
 			}
 			
 			// loop through the last used vertices and set their twins
 			int j = firstHalfEdgeIndex;
-			for (int i = 0; i < 3; i++) {
-				halfedges[j]->twin = getTwin(table, vertices_visited[i], vertices_visited[(i+1)%3], halfedges[j]);
+			for (int i = 0; i < verticesInFaceCount; i++) {
+				halfedges[j]->twin = getTwin(table, vertices_visited[i], 
+					vertices_visited[(i + 1) % verticesInFaceCount], halfedges[j]);
 				j++;
 			}
 		}

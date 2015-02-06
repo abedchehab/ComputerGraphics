@@ -43,6 +43,7 @@ myVertex *closest_vertex;
 myFace *closest_face;
 
 bool smooth = false; //smooth = true means smooth normals, default false means face-wise normals.
+bool triangulate = false;
 bool drawmesh = true;
 bool drawwireframe = false;
 bool drawmeshvertices = false;
@@ -205,6 +206,9 @@ void menu(int item)
 {
 	switch (item)
 	{
+	case MENU_TRIANGULATE:
+		triangulate = !triangulate;
+		break;
 	case MENU_SHADING:
 		smooth = !smooth;
 		break;
@@ -428,6 +432,10 @@ void display()
 		glDisable(GL_POLYGON_OFFSET_FILL);
 	}
 
+	if (triangulate) {
+		m->triangulate();
+	}
+
 	if (drawmeshvertices) {
 		glUseProgram(0);
 		glPointSize(2.0);
@@ -457,7 +465,30 @@ void display()
 	}
 
 	if (drawsilhouette) {
+		glLineWidth(4.0);
+		glBegin(GL_LINES);
+		glColor3f(1.0, 0.0, 0.0);
+		for (vector<myHalfedge *>::iterator it = m->halfedges.begin(); it != m->halfedges.end(); it++)
+		{
+			myHalfedge *e = (*it);
+			myVertex *v1 = (*it)->source;
+			if ((*it)->twin == NULL) continue;
+			myVertex *v2 = (*it)->twin->source;
 
+			myVector3D *normal1 = (*it)->adjacent_face->normal;
+			myVector3D *normal2 = (*it)->twin->adjacent_face->normal;
+
+			myVector3D eyedirection = (camera_eye)-*(v1->point);
+			eyedirection.normalize();
+			// if (**WRITE CODE HERE TO DECIDE IF TO DRAW THIS EDGE AS SILHOUTTE**)
+			{
+				glNormal3f(v1->normal->dX, v1->normal->dY, v1->normal->dZ);
+				glVertex3f(v1->point->X, v1->point->Y, v1->point->Z);
+				glNormal3f(v2->normal->dX, v2->normal->dY, v2->normal->dZ);
+				glVertex3f(v2->point->X, v2->point->Y, v2->point->Z);
+			}
+		}
+		glEnd();
 	}
 
 	if (drawnormals) {
@@ -545,10 +576,9 @@ void init() {
 	closest_face = NULL;
 
 	m = new myMesh();
-	m->readFile("apple.obj");
+	m->readFile("cube.obj");
 	m->computeNormals();
 }
-
 
 int main(int argc, char* argv[]) {
 	glutInit(&argc, argv);
